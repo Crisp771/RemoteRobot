@@ -1,0 +1,22 @@
+{
+  "name": "iot-workbench-raspi",
+  "version": "0.1.0",
+  "license": "none",
+  "scripts": {
+    "start": "node dist/main.js",
+    "build": "gulp"
+  },
+  "main": "./dist/main.js",
+  "dependencies": {
+    "@types/amqplib": "^0.5.9",
+    "amqplib": "^0.5.3",
+    "onoff": "^3.2.2"
+  },
+  "devDependencies": {
+    "gulp": "^4.0.0",
+    "gulp-typescript": "^5.0.0",
+    "ts-node": "~4.1.0",
+    "tslint": "~5.9.1",
+    "typescript": "^2.9.2"
+  }
+}
