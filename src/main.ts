@@ -33,7 +33,7 @@ function init(): void {
                 bus = i2c.openSync(1);
                 chip = new mpu6050(bus, address);
                 setInterval(function (): void {
-                    chip.readGyro(function (err: Error, data: AttitudeData): void {
+                    chip.read(function (err: Error, data: AttitudeData): void {
                         ProcessData(err, data);
                     });
                 }, config.frequency);
