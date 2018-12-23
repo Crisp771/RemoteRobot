@@ -12,7 +12,7 @@ var queueName: string = "hello";
 var chip: any;
 var bus: any;
 var ch: amqp.Channel;
-var address: number = 0x86;
+var address: number = 0x68;
 var send: (queue: string, content: Buffer) => boolean;
 
 function main(compiler: string): void {
