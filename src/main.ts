@@ -32,7 +32,9 @@ function init(): void {
             if (config.environment === "robot") {
                 bus = i2c.openSync(1);
                 chip = new mpu6050.Sensor(bus, address);
-                chip.readGyro(this.ProcessData);
+                chip.readGyro(function(err, data){
+                    ProcessData(err, data);
+                });
             } else {
                 setInterval(function (): void {
                     ProcessData(null, new DummyAttitudeDataFactory().create());
