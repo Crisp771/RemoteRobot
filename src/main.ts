@@ -1,7 +1,7 @@
 var config: any = require("./robotconfig.json");
 import amqp = require("amqplib/callback_api");
 const i2c: any = config.environment === "robot" ? require("i2c-bus") : require("./i2c-mock");
-const mpu6050: any = require("i2c-mpu6050");
+var mpu6050: any = require("i2c-mpu6050");
 import { AttitudeData } from "./AttitudeData";
 import { RabbitSettingsFactory } from "./Factories/RabbitSettingsFactory";
 import { DummyAttitudeDataFactory } from "./Factories/DummyAttitudeDataFactory";
@@ -31,7 +31,7 @@ function init(): void {
             console.log(" [*] Sending messages in %s. To exit press CTRL+C", queueName);
             if (config.environment === "robot") {
                 bus = i2c.openSync(1);
-                chip = new mpu6050.Sensor(bus, address);
+                chip = new mpu6050(bus, address);
                 setInterval(function (): void {
                     chip.readGyro(function (err: Error, data: AttitudeData): void {
                         ProcessData(err, data);
