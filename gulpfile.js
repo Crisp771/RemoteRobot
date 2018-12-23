@@ -7,3 +7,11 @@ gulp.task("default", function () {
         .pipe(tsProject())
         .js.pipe(gulp.dest("dist"));
 });
+
+gulp.task("copy-data", function () {
+    return gulp.src("./src/*.json")
+        .pipe(gulp.dest("dist"));
+});
+
+
+gulp.task('build', gulp.series('default', 'copy-data'));

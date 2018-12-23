@@ -4,12 +4,15 @@
   "license": "none",
   "scripts": {
     "start": "node dist/main.js",
-    "build": "gulp"
+    "build": "gulp build"
   },
   "main": "./dist/main.js",
   "dependencies": {
     "@types/amqplib": "^0.5.9",
+    "@types/i2c-bus": "^1.0.19",
     "amqplib": "^0.5.3",
+    "i2c-bus": "^4.0.7",
+    "i2c-mpu6050": "^2.3.0",
     "onoff": "^3.2.2"
   },
   "devDependencies": {
