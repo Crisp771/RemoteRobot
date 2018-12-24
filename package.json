@@ -1,6 +1,6 @@
 {
-  "name": "iot-workbench-raspi",
-  "version": "0.1.0",
+  "name": "RemoteRobot",
+  "version": "0.2.0",
   "license": "none",
   "scripts": {
     "start": "node dist/main.js",
