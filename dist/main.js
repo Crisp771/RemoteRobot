@@ -6,11 +6,13 @@ var i2c = config.environment === "robot" ? require("i2c-bus") : require("./i2c-m
 var mpu6050 = require("i2c-mpu6050");
 var RabbitSettingsFactory_1 = require("./Factories/RabbitSettingsFactory");
 var DummyAttitudeDataFactory_1 = require("./Factories/DummyAttitudeDataFactory");
-var queueName = "hello";
+var txQueue = "RobotTx";
+var rxQueue = "RobotRx";
 var chip;
 var bus;
-var ch;
-var address = 0x86;
+var txChannel;
+var rxChannel;
+var address = 0x68;
 var send;
 function main(compiler) {
     console.log("Hello from " + compiler);
@@ -22,13 +24,17 @@ function init() {
     console.log("Frequency set : " + config.frequency);
     amqp.connect(new RabbitSettingsFactory_1.RabbitSettingsFactory().create().url(), function (err, conn) {
         conn.createChannel(function (err, channel) {
-            ch = channel;
-            ch.assertQueue(queueName, { durable: false });
-            console.log(" [*] Sending messages in %s. To exit press CTRL+C", queueName);
+            txChannel = channel;
+            txChannel.assertQueue(txQueue, { durable: false });
+            console.log(" [*] Sending messages in %s. To exit press CTRL+C", txQueue);
             if (config.environment === "robot") {
                 bus = i2c.openSync(1);
-                chip = new mpu6050.Sensor(bus, address);
-                chip.readGyro(this.ProcessData);
+                chip = new mpu6050(bus, address);
+                setInterval(function () {
+                    chip.read(function (err, data) {
+                        ProcessData(err, data);
+                    });
+                }, config.frequency);
             }
             else {
                 setInterval(function () {
@@ -36,10 +42,18 @@ function init() {
                 }, config.frequency);
             }
         });
+        conn.createChannel(function (err, channel) {
+            rxChannel = channel;
+            rxChannel.assertQueue(rxQueue, { durable: false });
+            rxChannel.consume(rxQueue, function (message) {
+                console.log(message.content.toString());
+                rxChannel.ack(message);
+            }, { noAck: false });
+        });
     });
 }
 function ProcessData(err, data) {
-    ch.sendToQueue(queueName, new Buffer(JSON.stringify(err ? err : data)));
+    txChannel.sendToQueue(txQueue, new Buffer(JSON.stringify(err ? err : data)));
     console.log(JSON.stringify(err ? err : data));
 }
 main("TypeScript");

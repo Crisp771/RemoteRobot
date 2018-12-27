@@ -8,10 +8,12 @@ import { DummyAttitudeDataFactory } from "./Factories/DummyAttitudeDataFactory";
 
 
 
-var queueName: string = "hello";
+var txQueue: string = "RobotTx";
+var rxQueue: string = "RobotRx";
 var chip: any;
 var bus: any;
-var ch: amqp.Channel;
+var txChannel: amqp.Channel;
+var rxChannel: amqp.Channel;
 var address: number = 0x68;
 var send: (queue: string, content: Buffer) => boolean;
 
@@ -26,9 +28,10 @@ function init(): void {
     console.log(`Frequency set : ${config.frequency}`);
     amqp.connect(new RabbitSettingsFactory().create().url(), function (err: any, conn: amqp.Connection): void {
         conn.createChannel(function (err: any, channel: amqp.Channel): void {
-            ch = channel;
-            ch.assertQueue(queueName, { durable: false });
-            console.log(" [*] Sending messages in %s. To exit press CTRL+C", queueName);
+            txChannel = channel;
+            txChannel.assertQueue(txQueue, { durable: false });
+            console.log(" [*] Sending messages in %s. To exit press CTRL+C", txQueue);
+
             if (config.environment === "robot") {
                 bus = i2c.openSync(1);
                 chip = new mpu6050(bus, address);
@@ -43,11 +46,20 @@ function init(): void {
                 }, config.frequency);
             }
         });
+
+        conn.createChannel(function(err: any, channel: amqp.Channel): void {
+            rxChannel = channel;
+            rxChannel.assertQueue(rxQueue, {durable: false});
+            rxChannel.consume(rxQueue, function(message: any): any {
+                console.log(message.content.toString());
+                rxChannel.ack(message);
+            }, {noAck: false});
+        });
     });
 }
 
 function ProcessData(err: Error, data: AttitudeData): void {
-    ch.sendToQueue(queueName, new Buffer(JSON.stringify(err ? err : data)));
+    txChannel.sendToQueue(txQueue, new Buffer(JSON.stringify(err ? err : data)));
     console.log(JSON.stringify(err ? err : data));
 }
 
