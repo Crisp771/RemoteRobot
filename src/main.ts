@@ -55,6 +55,7 @@ function init(): void {
                 if (config.environment === "robot") {
                     lcd.clear();
                     lcd.print(message.content.toString());
+                    console.log(message.content.toString());
                 } else {
                     console.log(message.content.toString());
                 }
@@ -66,7 +67,7 @@ function init(): void {
 
 function ProcessData(err: Error, data: AttitudeData): void {
     txChannel.sendToQueue(txQueue, new Buffer(JSON.stringify(err ? err : data)));
-    console.log(JSON.stringify(err ? err : data));
+    // console.log(JSON.stringify(err ? err : data));
 }
 
 main("TypeScript");
