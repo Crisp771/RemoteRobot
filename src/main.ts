@@ -6,7 +6,7 @@ import { AttitudeData } from "./AttitudeData";
 import { RabbitSettingsFactory } from "./Factories/RabbitSettingsFactory";
 import { DummyAttitudeDataFactory } from "./Factories/DummyAttitudeDataFactory";
 const LCD: any = config.environment === "robot" ? require("lcdi2c") : require("./lcd-mock");
-var lcd : any =  config.environment === "robot" ? new LCD(1, 0x27, 20, 4) : null;
+var lcd : any =  config.environment === "robot" ? new LCD(1, 0x27, 16, 2) : null;
 
 
 var txQueue: string = "RobotTx";
@@ -53,7 +53,10 @@ function init(): void {
             rxChannel.assertQueue(rxQueue, { durable: false });
             rxChannel.consume(rxQueue, function (message: any): any {
                 if (config.environment === "robot") {
-                    // lcd.clear();
+                    if(lcd === null) {
+                        console.log("LCD Is Null");
+                    }
+                    lcd.clear();
                     lcd.print(message.content.toString());
                     console.log(message.content.toString());
                 } else {
