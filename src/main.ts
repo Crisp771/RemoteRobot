@@ -53,7 +53,7 @@ function init(): void {
             rxChannel.assertQueue(rxQueue, { durable: false });
             rxChannel.consume(rxQueue, function (message: any): any {
                 if (config.environment === "robot") {
-                    lcd.clear();
+                    // lcd.clear();
                     lcd.print(message.content.toString());
                     console.log(message.content.toString());
                 } else {
