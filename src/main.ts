@@ -5,7 +5,8 @@ var mpu6050: any = require("i2c-mpu6050");
 import { AttitudeData } from "./AttitudeData";
 import { RabbitSettingsFactory } from "./Factories/RabbitSettingsFactory";
 import { DummyAttitudeDataFactory } from "./Factories/DummyAttitudeDataFactory";
-
+const LCD: any = config.environment === "robot" ? require("lcdi2c") : require("./lcd-mock");
+var lcd : any =  config.environment === "robot" ? new LCD(1, 0x27, 20, 4) : null;
 
 
 var txQueue: string = "RobotTx";
@@ -47,13 +48,18 @@ function init(): void {
             }
         });
 
-        conn.createChannel(function(err: any, channel: amqp.Channel): void {
+        conn.createChannel(function (err: any, channel: amqp.Channel): void {
             rxChannel = channel;
-            rxChannel.assertQueue(rxQueue, {durable: false});
-            rxChannel.consume(rxQueue, function(message: any): any {
-                console.log(message.content.toString());
+            rxChannel.assertQueue(rxQueue, { durable: false });
+            rxChannel.consume(rxQueue, function (message: any): any {
+                if (config.environment === "robot") {
+                    lcd.clear();
+                    lcd.print(message.content.toString());
+                } else {
+                    console.log(message.content.toString());
+                }
                 rxChannel.ack(message);
-            }, {noAck: false});
+            }, { noAck: false });
         });
     });
 }

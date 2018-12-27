@@ -6,6 +6,8 @@ var i2c = config.environment === "robot" ? require("i2c-bus") : require("./i2c-m
 var mpu6050 = require("i2c-mpu6050");
 var RabbitSettingsFactory_1 = require("./Factories/RabbitSettingsFactory");
 var DummyAttitudeDataFactory_1 = require("./Factories/DummyAttitudeDataFactory");
+var LCD = config.environment === "robot" ? require("lcdi2c") : require("./lcd-mock");
+var lcd = config.environment === "robot" ? new LCD(1, 0x27, 20, 4) : null;
 var txQueue = "RobotTx";
 var rxQueue = "RobotRx";
 var chip;
@@ -46,7 +48,13 @@ function init() {
             rxChannel = channel;
             rxChannel.assertQueue(rxQueue, { durable: false });
             rxChannel.consume(rxQueue, function (message) {
-                console.log(message.content.toString());
+                if (config.environment === "robot") {
+                    lcd.clear();
+                    lcd.print(message.content.toString());
+                }
+                else {
+                    console.log(message.content.toString());
+                }
                 rxChannel.ack(message);
             }, { noAck: false });
         });
